@@ -5,13 +5,13 @@ package se.alipsa.pd
 
 import spock.lang.Specification
 
-class LibraryTest extends Specification {
+class ProjectDeployerTest extends Specification {
     def "someLibraryMethod returns true"() {
         setup:
-        def lib = new Library()
+        def pd = new ProjectDeployer()
 
         when:
-        def result = lib.someLibraryMethod()
+        def result = pd.someLibraryMethod()
 
         then:
         result == true
