@@ -14,10 +14,6 @@ class ProjectDeployer {
         }
     }
 
-    boolean someLibraryMethod() {
-        true
-    }
-
     void createUser(String userName) {
 
     }

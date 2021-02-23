@@ -6,7 +6,7 @@
     <environments>
         <environment name="test">
             <targets>
-                <target>localhost:22</target>
+                <target>localhost:22022</target>
             </targets>
         </environment>
     </environments>

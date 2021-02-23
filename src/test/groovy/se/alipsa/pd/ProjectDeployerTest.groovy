@@ -3,17 +3,26 @@
  */
 package se.alipsa.pd
 
-import spock.lang.Specification
+import spock.lang.*
 
 class ProjectDeployerTest extends Specification {
-    def "someLibraryMethod returns true"() {
-        setup:
+
+    def setup() {
+        println("TODO: start an ssh server")
+    }
+
+    def "copy file to server"() {
+        println("testing!!!!!!!")
+        setup: "temp file with content created"
         def pd = new ProjectDeployer()
+        def tempFile = File.createTempFile("test", "txt")
+        new FileWriter(tempFile).withCloseable { writer ->
+            writer.write("Hello world")
+        }
+        when: "A file is copied to the server"
+        pd.copyFile(new URL("file://" + tempFile.getAbsolutePath()), "/deploy/test.txt")
 
-        when:
-        def result = pd.someLibraryMethod()
-
-        then:
-        result == true
+        then: "TODO: check that the file exists on the ssh server"
+        true == false
     }
 }
