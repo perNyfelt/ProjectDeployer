@@ -40,7 +40,7 @@ Assuming the following config file:
     </environment>
 </deploymentConfig>
 ```
-
+...The following deploy script (named deployGlow.groovy) can be written to deploy to either test or prod environments
 ```groovy
 @Grab('se.alipsa:ProjectDeployer:1.0.0')
 import se.alipsa.pd.*
@@ -110,7 +110,10 @@ pd.createActions "frontend", { d ->
     }
 }
 // relevant actions will now run on each host
-pd.deploy
+// this.args[0] is the first argument passed to this script
+// it will be validated against existing environments
+pd.deploy args[0]
 ```
-
+You can then deploy to test as follows:
+`groovy deployGlow.groovy test`
 
