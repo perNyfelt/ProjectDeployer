@@ -9,21 +9,12 @@ class Deployment {
 
     String sshUser = null;
     String sshPassword = null;
+    String targetHost;
 
-    static Deployment create(File xmlConfigFile) {
-        JAXBContext context = JAXBContext.newInstance(DeploymentConfig.class);
-        DeploymentConfig config = (DeploymentConfig) context.createUnmarshaller()
-                .unmarshal(xmlConfigFile);
-        return create(config);
-    }
-
-    static Deployment create(DeploymentConfig config) {
-        return new Deployment(config);
-    }
-
-    private Deployment(DeploymentConfig config) {
-        this.sshUser = config.global.sshUser
-        this.sshPassword = config.global.sshPassword
+    Deployment(String sshUser, String sshPassword, String targetHost) {
+        this.sshUser = sshUser
+        this.sshPassword = sshPassword
+        this.targetHost = targetHost
 
         //Ssh ssh = new Ssh("localhost", , sshUser, "p@sswd")
     }

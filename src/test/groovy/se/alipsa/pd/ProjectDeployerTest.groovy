@@ -7,7 +7,7 @@ import org.apache.sshd.scp.server.ScpCommandFactory
 import org.apache.sshd.server.SshServer
 import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider
 import org.apache.sshd.server.shell.InteractiveProcessShellFactory
-import spock.lang.*
+import spock.lang.Specification
 
 class ProjectDeployerTest extends Specification {
 
@@ -27,19 +27,44 @@ class ProjectDeployerTest extends Specification {
         sshd.stop()
     }
 
-    def "copy file to server"() {
+    def "basic deployment script"() {
 
-        println("testing!!!!!!!")
-        setup: "temp file with content created"
-        def pd = Deployment.create(new File(getClass().getResource("/vars.xml").toURI()))
-        def tempFile = File.createTempFile("test", "txt")
-        new FileWriter(tempFile).withCloseable { writer ->
-            writer.write("Hello world")
+        //@Grab('se.alipsa:ProjectDeployer:1.0.0')
+        //import se.alipsa.pd.*
+
+        String serverUser = "glow"
+        String alipsaNexus ="http://localhost:8080/nexus"
+        String backendServiceName = "glow-backend.service"
+        String javaVersion="11.0.10"
+        String baseTargetDir="/usr/local/glow"
+
+        File glowBackendJar
+        File glowFrontEndZip
+
+        def pd = ProjectDeployer.create(new File(getClass().getResource("/vars.xml").toURI()).getAbsolutePath())
+        pd.addSetupActions {
+            glowBackendJar = pd.fetchFromRepository(alipsaNexus, "se.alipsa:glow-backend:1.2")
+            glowFrontEndZip = pd.fetchFromRepository(alipsaNexus, "se.alipsa:glow-frontend:1.2")
         }
-        when: "A file is copied to the server"
-        pd.copyFile(new URL("file://" + tempFile.getAbsolutePath()), "/deploy/test.txt")
 
-        then: "TODO: check that the file exists on the ssh server"
-        true == true
+        // d is an instance of Deployment (there is one Deployment for each host)
+        pd.createActions "backend", { d ->
+            {
+                d.createServerUser(serverUser)
+                d.stopService(backendServiceName)
+                String javaHome = d.installJava(javaVersion, baseTargetDir)
+                d.copy( fromFile: glowBackendJar,
+                        toFile: "${baseTargetDir}/backend/${glowBackendJar.getName()}",
+                        owner: serverUser,
+                        permissions: "g=rwx,u=rwx,o=r")
+                d.createService(
+                        name: backendServiceName,
+                        exec: "${javaHome}/bin/java -jar ${glowBackendJar.getName()}",
+                        runas: serverUser)
+                d.startService(backendServiceName)
+            }
+        }
+
+        pd.deploy "test"
     }
 }

@@ -45,7 +45,7 @@ Assuming the following config file:
 @Grab('se.alipsa:ProjectDeployer:1.0.0')
 import se.alipsa.pd.*
 
-String serverUser = "mySpringBootAppUser"
+String serverUser = "glow"
 String alipsaNexus ="http://localhost:8080/nexus"
 String backendServiceName = "glow-backend.service" 
 String frontEndServiceName = "glow-frontend.service"

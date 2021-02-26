@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<deploymentConfig>
+    <!-- Deployment example for an application called glow -->
+    <global>
+        <sshUser>pernyf</sshUser>
+        <!-- source can be sshpass, prompt, cert, keyring -->
+        <sshPassword source="prompt"/>
+    </global>
+    <environment name="test">
+        <target name="backend">
+            <host>behost1.test.alipsa.se:22022</host>
+        </target>
+        <target name="frontend">
+            <host>fehost1.test.alipsa.se:22022</host>
+        </target>
+    </environment>
+    <environment name="prod">
+        <target name="backend">
+            <host>behost1.prod.alipsa.se:22022</host>
+            <host>behost2.prod.alipsa.se:22022</host>
+        </target>
+        <target name="frontend">
+            <host>fehost1.prod.alipsa.se:22022</host>
+            <host>fehost2.prod.alipsa.se:22022</host>
+        </target>
+    </environment>
+</deploymentConfig>
