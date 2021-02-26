@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <deploymentConfig>
+    <!-- Deployment example for an application called glow -->
     <global>
         <sshUser>pernyf</sshUser>
-        <sshPassword>p@s5w0rD</sshPassword>
+        <!-- source can be sshpass, prompt, cert -->
+        <sshPassword source="prompt"/>
     </global>
     <environment name="test">
         <target name="backend">
