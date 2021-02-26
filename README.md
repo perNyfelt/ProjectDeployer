@@ -11,6 +11,36 @@ through complex configuration. This way you end up with a simple to understand
 configuration, and a groovy script (or java program) that describes what should be done which greatly
 improves readability and debugging ability.
 
+Assuming the following config file:
+```xml
+<deploymentConfig>
+    <!-- Deployment example for an application called glow -->
+    <global>
+        <sshUser>pernyf</sshUser>
+        <!-- source can be sshpass, prompt, cert, keyring -->
+        <sshPassword source="prompt"/>
+    </global>
+    <environment name="test">
+        <target name="backend">
+            <host>behost1.test.alipsa.se:22022</host>
+        </target>
+        <target name="frontend">
+            <host>fehost1.test.alipsa.se:22022</host>
+        </target>
+    </environment>
+    <environment name="prod">
+        <target name="backend">
+            <host>behost1.prod.alipsa.se:22022</host>
+            <host>behost2.prod.alipsa.se:22022</host>
+        </target>
+        <target name="frontend">
+            <host>fehost1.prod.alipsa.se:22022</host>
+            <host>fehost2.prod.alipsa.se:22022</host>
+        </target>
+    </environment>
+</deploymentConfig>
+```
+
 ```groovy
 @Grab('se.alipsa:ProjectDeployer:1.0.0')
 import se.alipsa.pd.*
@@ -31,7 +61,7 @@ pd.addSetupActions {
     glowFrontEndZip = pd.fetchFromRepository(alipsaNexus, "se.alipsa:glow-frontend:1.2")
 }
 
-// d is and instance of Deployment (there is one Deployment for each host)
+// d is an instance of Deployment (there is one Deployment for each host)
 pd.createActions "backend", { d ->
     {
         d.createServerUser(serverUser)

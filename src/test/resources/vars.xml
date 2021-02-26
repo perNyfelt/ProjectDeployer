@@ -3,7 +3,7 @@
     <!-- Deployment example for an application called glow -->
     <global>
         <sshUser>pernyf</sshUser>
-        <!-- source can be sshpass, prompt, cert -->
+        <!-- source can be sshpass, prompt, cert, keyring -->
         <sshPassword source="prompt"/>
     </global>
     <environment name="test">
