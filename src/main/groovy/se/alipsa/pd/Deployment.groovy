@@ -3,7 +3,10 @@
  */
 package se.alipsa.pd
 
-import javax.xml.bind.JAXBContext
+import java.nio.channels.Channels
+import java.nio.channels.FileChannel
+import java.nio.channels.ReadableByteChannel
+import java.nio.file.Files
 
 class Deployment {
 
@@ -40,8 +43,19 @@ class Deployment {
      * @param from the url to pull the resource from
      * @param to the target path on the server to put the file on
      */
-    void copy(URL from, String to) {
-
+    void copy(URL from, String to) throws IOException {
+        // apache.sshd does not allow streaming without knowing the size in advance so we need to download first
+        def tmpFile = File.createTempFile("copy", ".tmp")
+        try (ReadableByteChannel channel = Channels.newChannel(from.openStream())) {
+            OutputStream fileOutputStream = new FileOutputStream(tmpFile)
+            FileChannel fileChannel = fileOutputStream.getChannel()
+            fileChannel.transferFrom(channel, 0, Long.MAX_VALUE);
+            fileOutputStream.close();
+        }
+        copy(tmpFile.getAbsolutePath(), to)
+        if (!tmpFile.delete()) {
+            tmpFile.deleteOnExit()
+        }
     }
 
     /**
