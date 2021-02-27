@@ -5,6 +5,8 @@ import org.apache.sshd.client.channel.ClientChannel
 import org.apache.sshd.client.session.ClientSession
 import org.apache.sshd.common.channel.Channel
 import org.apache.sshd.client.channel.ClientChannelEvent
+import org.apache.sshd.scp.client.ScpClient
+import org.apache.sshd.scp.client.ScpClientCreator
 
 import java.util.concurrent.TimeUnit
 
@@ -17,6 +19,15 @@ class Ssh {
     String password;
     SshClient client;
 
+    Ssh(String hostAndPort, String username, String password) {
+        def arr  = hostAndPort.split(":")
+        this.host = arr[0]
+        this.port = Integer.parseInt(arr[1])
+        this.username = username
+        this.password = password
+        client = SshClient.setUpDefaultClient();
+    }
+
     Ssh(String host, int port, String username, String password) {
         this.host = host
         this.port = port
@@ -27,8 +38,7 @@ class Ssh {
 
     String eval(String command) {
         client.start();
-        try (ClientSession session = client.connect(username, host, port)
-                .verify(defaultTimeoutSeconds, TimeUnit.SECONDS).getSession()) {
+        try (ClientSession session = createSession()) {
             session.addPasswordIdentity(password);
             session.auth().verify(defaultTimeoutSeconds, TimeUnit.SECONDS);
 
@@ -54,4 +64,23 @@ class Ssh {
         }
     }
 
+    private createSession() {
+        //println("connecting to ${username}@${host}:${port}")
+        return client.connect(username, host, port).verify(defaultTimeoutSeconds, TimeUnit.SECONDS).getSession()
+    }
+
+    def upload(String from, String to) throws IOException {
+        //println("Starting ssh client")
+        client.start();
+        ScpClientCreator creator = ScpClientCreator.instance();
+        try (ClientSession session = createSession()) {
+            session.addPasswordIdentity(password);
+            session.auth().verify(defaultTimeoutSeconds, TimeUnit.SECONDS);
+            //println("creating scp client")
+            ScpClient scpClient = creator.createScpClient(session)
+            scpClient.upload(from, to, ScpClient.Option.PreserveAttributes)
+        } finally {
+            client.stop();
+        }
+    }
 }

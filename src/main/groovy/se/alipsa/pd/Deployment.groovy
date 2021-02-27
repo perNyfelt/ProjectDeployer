@@ -7,16 +7,16 @@ import javax.xml.bind.JAXBContext
 
 class Deployment {
 
-    String sshUser = null;
-    String sshPassword = null;
-    String targetHost;
+    String sshUser = null
+    String sshPassword = null
+    String targetHost
+    Ssh ssh
 
     Deployment(String sshUser, String sshPassword, String targetHost) {
         this.sshUser = sshUser
         this.sshPassword = sshPassword
         this.targetHost = targetHost
-
-        //Ssh ssh = new Ssh("localhost", , sshUser, "p@sswd")
+        ssh = new Ssh(targetHost, sshUser, sshPassword)
     }
 
     void createUser(String userName) {
@@ -40,8 +40,17 @@ class Deployment {
      * @param from the url to pull the resource from
      * @param to the target path on the server to put the file on
      */
-    void copyFile(URL from, String to) {
+    void copy(URL from, String to) {
 
+    }
+
+    /**
+     *
+     * @param from the path to copy the resource from
+     * @param to the target path on the server to put the file on
+     */
+    void copy(String from, String to) {
+        ssh.upload(from, to);
     }
 
     void chown(String file, String userName) {

@@ -14,6 +14,7 @@ class DeploymentTest extends Specification {
     SshServer sshd;
 
     def setup() {
+        println("Starting ssh server")
         sshd = SshServer.setUpDefaultServer();
         sshd.setPort(22022);
         sshd.setShellFactory(new InteractiveProcessShellFactory())
@@ -24,6 +25,7 @@ class DeploymentTest extends Specification {
     }
 
     def cleanup() {
+        println("Stopping ssh server")
         sshd.stop()
     }
 
@@ -31,15 +33,20 @@ class DeploymentTest extends Specification {
 
         println("testing!!!!!!!")
         setup: "temp file with content created"
-        def pd = Deployment.create(new File(getClass().getResource("/vars.xml").toURI()))
+        def d = new Deployment("per", "s3crEtP255", "localhost:${sshd.getPort()}")
         def tempFile = File.createTempFile("test", "txt")
         new FileWriter(tempFile).withCloseable { writer ->
             writer.write("Hello world")
         }
         when: "A file is copied to the server"
-        pd.copyFile(new URL("file://" + tempFile.getAbsolutePath()), "/deploy/test.txt")
+        println("Copy file")
+        d.copy(tempFile.getAbsolutePath(), "./test.txt")
 
         then: "TODO: check that the file exists on the ssh server"
-        true == true
+        def actualFile = new File("./test.txt")
+        if (actualFile.exists()) {
+            actualFile.deleteOnExit()
+        }
+        actualFile.exists()
     }
 }
