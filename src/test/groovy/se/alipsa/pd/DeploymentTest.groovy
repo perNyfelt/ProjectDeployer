@@ -3,6 +3,8 @@
  */
 package se.alipsa.pd
 
+import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Logger
 import org.apache.sshd.scp.server.ScpCommandFactory
 import org.apache.sshd.server.SshServer
 import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider
@@ -12,9 +14,10 @@ import spock.lang.*
 class DeploymentTest extends Specification {
 
     SshServer sshd;
+    static final Logger LOG = LogManager.getLogger()
 
     def setup() {
-        println("Starting ssh server")
+        LOG.debug("Starting ssh server")
         sshd = SshServer.setUpDefaultServer();
         sshd.setPort(22022);
         sshd.setShellFactory(new InteractiveProcessShellFactory())
@@ -25,13 +28,11 @@ class DeploymentTest extends Specification {
     }
 
     def cleanup() {
-        println("Stopping ssh server")
+        LOG.debug("Stopping ssh server")
         sshd.stop()
     }
 
     def "copy file to server"() {
-
-        println("testing!!!!!!!")
         setup: "temp file with content created"
         def d = new Deployment("per", "s3crEtP255", "localhost:${sshd.getPort()}")
         def tempFile = File.createTempFile("test", "txt")
@@ -39,7 +40,7 @@ class DeploymentTest extends Specification {
             writer.write("Hello world")
         }
         when: "A file is copied to the server"
-        println("Copy file")
+        LOG.info("Copying file to server")
         d.copy(tempFile.getAbsolutePath(), "./test.txt")
 
         then: "TODO: check that the file exists on the ssh server"
