@@ -3,6 +3,8 @@
  */
 package se.alipsa.pd
 
+import se.alipsa.pd.util.IOUtil
+
 import java.nio.channels.Channels
 import java.nio.channels.FileChannel
 import java.nio.channels.ReadableByteChannel
@@ -62,12 +64,7 @@ class Deployment {
     void copy(URL from, String to) throws IOException {
         // apache.sshd does not allow streaming without knowing the size in advance so we need to download first
         def tmpFile = File.createTempFile("copy", ".tmp")
-        try (ReadableByteChannel channel = Channels.newChannel(from.openStream())) {
-            OutputStream fileOutputStream = new FileOutputStream(tmpFile)
-            FileChannel fileChannel = fileOutputStream.getChannel()
-            fileChannel.transferFrom(channel, 0, Long.MAX_VALUE);
-            fileOutputStream.close();
-        }
+        IOUtil.download(from, tmpFile)
         copy(tmpFile.getAbsolutePath(), to)
         if (!tmpFile.delete()) {
             tmpFile.deleteOnExit()

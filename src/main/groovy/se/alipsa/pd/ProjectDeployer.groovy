@@ -2,6 +2,7 @@ package se.alipsa.pd
 
 import se.alipsa.pd.model.Environment
 import se.alipsa.pd.model.PasswordSource
+import se.alipsa.pd.util.IOUtil
 import se.alipsa.pd.util.PasswordPrompt
 
 import javax.xml.bind.JAXBContext
@@ -32,8 +33,30 @@ class ProjectDeployer {
         actionMap.put(targetName, actions);
     }
 
-    def File fetchFromRepository(String baseUrl, String artifact) {
-        return null
+
+    File fetchJarFromRepository(String baseUrl, String groupArtifactVersion) {
+        if (baseUrl == null || !baseUrl.contains("://")) {
+            throw new InputException("Wrong baseUrl format for ${baseUrl}, not a valid url")
+        }
+        if (groupArtifactVersion == null || groupArtifactVersion.length() < 6) {
+            throw new InputException("Wrong groupArtifactVersion format: ${groupArtifactVersion}, expected groupName:artifactName:version")
+        }
+        def gav = groupArtifactVersion.split(":")
+        if (gav.length != 3) {
+            throw new InputException("Wrong groupArtifactVersion format: ${groupArtifactVersion}, expected groupName:artifactName:version")
+        }
+        def group = gav[0].replace('.', '/')
+        def artifact = gav[1]
+        def version = gav[2]
+        baseUrl = baseUrl.endsWith("/") ? baseUrl.substring(0, baseUrl.length() - 1) : baseUrl
+        URL url = new URL("${baseUrl}/${group}/${artifact}/${version}/${artifact}-${version}.jar")
+        def tmpFile = File.createTempFile(artifact, ".jar")
+        IOUtil.download(url, tmpFile)
+        return tmpFile
+    }
+
+    void download(URL url, File toFile) {
+        IOUtil.download(url, toFile)
     }
 
     // TODO: it is perhaps smarter to execute one host for each target

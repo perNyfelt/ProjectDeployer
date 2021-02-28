@@ -24,6 +24,7 @@ class ProjectDeployerTest {
         sshd.setPasswordAuthenticator(new MyPasswordAuthenticator())
         sshd.setKeyPairProvider(new SimpleGeneratorHostKeyProvider())
         sshd.start()
+        // TODO set up a test nexus
     }
 
     @AfterAll
@@ -49,8 +50,8 @@ class ProjectDeployerTest {
 
         def pd = ProjectDeployer.create(new File(getClass().getResource("/vars.xml").toURI()).getAbsolutePath())
         pd.addSetupActions {
-            glowBackendJar = pd.fetchFromRepository(alipsaNexus, "se.alipsa:glow-backend:1.2")
-            glowFrontEndZip = pd.fetchFromRepository(alipsaNexus, "se.alipsa:glow-frontend:1.2")
+            glowBackendJar = pd.fetchJarFromRepository(alipsaNexus, "se.alipsa:glow-backend:1.2")
+            glowFrontEndZip = pd.fetchJarFromRepository(alipsaNexus, "se.alipsa:glow-frontend:1.2")
         }
 
         // d is an instance of Deployment (there is one Deployment for each host)
