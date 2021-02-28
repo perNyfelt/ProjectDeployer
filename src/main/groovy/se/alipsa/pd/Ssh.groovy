@@ -1,5 +1,7 @@
 package se.alipsa.pd
 
+import org.apache.logging.log4j.Logger
+import org.apache.logging.log4j.LogManager
 import org.apache.sshd.client.SshClient
 import org.apache.sshd.client.channel.ClientChannel
 import org.apache.sshd.client.session.ClientSession
@@ -11,6 +13,8 @@ import org.apache.sshd.scp.client.ScpClientCreator
 import java.util.concurrent.TimeUnit
 
 class Ssh {
+
+    static final Logger LOG = LogManager.getLogger(Ssh.class)
 
     long defaultTimeoutSeconds = 30;
     String host;
@@ -25,7 +29,6 @@ class Ssh {
         this.port = Integer.parseInt(arr[1])
         this.username = username
         this.password = password
-        client = SshClient.setUpDefaultClient();
     }
 
     Ssh(String host, int port, String username, String password) {
@@ -33,10 +36,10 @@ class Ssh {
         this.port = port
         this.username = username
         this.password = password
-        client = SshClient.setUpDefaultClient();
     }
 
     String eval(String command) {
+        client = SshClient.setUpDefaultClient();
         client.start();
         try (ClientSession session = createSession()) {
             session.addPasswordIdentity(password);
@@ -65,11 +68,12 @@ class Ssh {
     }
 
     private createSession() {
-        //println("connecting to ${username}@${host}:${port}")
+        LOG.debug("connecting to ${username}@${host}:${port}")
         return client.connect(username, host, port).verify(defaultTimeoutSeconds, TimeUnit.SECONDS).getSession()
     }
 
     def upload(String from, String to) throws IOException {
+        client = SshClient.setUpDefaultClient();
         //println("Starting ssh client")
         client.start();
         ScpClientCreator creator = ScpClientCreator.instance();

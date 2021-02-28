@@ -3,6 +3,7 @@ package se.alipsa.pd;
 import org.junit.jupiter.api.Test;
 import se.alipsa.pd.model.Environment;
 import se.alipsa.pd.model.Global;
+import se.alipsa.pd.model.PasswordSource;
 import se.alipsa.pd.model.Target;
 
 import javax.xml.bind.JAXBContext;
@@ -25,8 +26,8 @@ public class JaxbTest {
     DeploymentConfig config = (DeploymentConfig) context.createUnmarshaller()
         .unmarshal(getClass().getResource("/vars.xml"));
 
-    assertEquals(config.getGlobal().getSshUser(), "pernyf", "deploymentConfig -> global -> sshUser");
-    assertEquals(config.getGlobal().getSshPassword(), "p@s5w0rD", "deploymentConfig -> global -> sshPassword");
+    assertEquals("pernyf", config.getGlobal().getSshUser(), "deploymentConfig -> global -> sshUser");
+    assertEquals(PasswordSource.prompt, config.getGlobal().getSshPasswordSource() , "deploymentConfig -> global -> sshPasswordSource");
 
     Environment testEnv = config.environmentForName("test");
     assertNotNull(testEnv, "deploymentConfig.getEnvironment() does not work");

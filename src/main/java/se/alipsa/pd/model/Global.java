@@ -1,8 +1,5 @@
 package se.alipsa.pd.model;
 
-
-import javax.xml.bind.annotation.XmlAttribute;
-
 public class Global {
 
   private String sshUser;
@@ -29,7 +26,6 @@ public class Global {
     return sshPasswordSource;
   }
 
-  @XmlAttribute(name="source")
   public void setSshPasswordSource(PasswordSource sshPasswordSource) {
     this.sshPasswordSource = sshPasswordSource;
   }

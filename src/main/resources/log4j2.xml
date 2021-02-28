@@ -2,11 +2,11 @@
 <Configuration status="INFO">
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout pattern="[%-5level] - %msg%n"/>
+            <PatternLayout pattern="[%-5level] %c{1.} - %msg%n"/>
         </Console>
     </Appenders>
     <Loggers>
-        <Logger name="org.apache.sshd" level="error" additivity="false">
+        <Logger name="org.apache.sshd" level="info" additivity="false">
             <AppenderRef ref="Console"/>
         </Logger>
         <Root level="debug">

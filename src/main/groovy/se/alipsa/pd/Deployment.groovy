@@ -38,6 +38,22 @@ class Deployment {
 
     }
 
+    def mkdir(String path) {
+        return mkdir(path, sshUser)
+    }
+
+    def mkdir(String path, String owner) {
+        return ssh.eval("sudo mkdir -p ${path} && sudo chown ${owner} ${path}")
+    }
+
+    def mkdir(String path, String owner, String group) {
+        return ssh.eval("sudo mkdir ${path} && sudo chown ${owner}:${group} ${path}")
+    }
+
+    def mkdir(String path, String owner, String group, String permissions) {
+        return ssh.eval("sudo mkdir ${path} && sudo chown ${owner}:${group} ${path} && sudo chmod ${permissions} ${path}")
+    }
+
     /**
      *
      * @param from the url to pull the resource from
@@ -60,7 +76,7 @@ class Deployment {
 
     /**
      *
-     * @param from the path to copy the resource from
+     * @param from the local path to copy the resource from
      * @param to the target path on the server to put the file on
      */
     void copy(String from, String to) {
