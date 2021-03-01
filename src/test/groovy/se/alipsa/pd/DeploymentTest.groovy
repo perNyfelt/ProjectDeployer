@@ -16,7 +16,8 @@ import static org.junit.jupiter.api.Assertions.*
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class DeploymentTest {
 
-    SshServer sshd;
+    SshServer sshd
+    def user = System.getProperty("user.name")
     static final Logger LOG = LogManager.getLogger(DeploymentTest.class)
 
     @BeforeAll
@@ -40,14 +41,14 @@ class DeploymentTest {
 
     @Test
     void testFileCopy() {
-        def d = new Deployment("per", "s3crEtP255", "localhost:${sshd.getPort()}")
+        def d = new Deployment(user, "s3crEtP255", "localhost:${sshd.getPort()}")
         def tempFile = File.createTempFile("test", "txt")
         new FileWriter(tempFile).withCloseable { writer ->
             writer.write("Hello world")
         }
         File buildDir = new File("./build")
         File targetDir = new File(buildDir, "deployTest")
-        LOG.info(d.mkdir("${targetDir.getAbsolutePath()}"))
+        LOG.info("creating ${targetDir}: {}", d.mkdir("${targetDir.getAbsolutePath()}"))
         assertTrue(targetDir.exists(), "Failed to create ${targetDir.getAbsolutePath()}")
         LOG.info("Copying file to server")
         d.copy(tempFile.getAbsolutePath(), "${targetDir.getAbsolutePath()}/test.txt")
