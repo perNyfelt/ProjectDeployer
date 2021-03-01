@@ -18,7 +18,7 @@ Assuming the following config file:
     <global>
         <sshUser>pernyf</sshUser>
         <!-- source can be sshpass, prompt, cert, keyring -->
-        <sshPassword source="prompt"/>
+        <sshPasswordSource>prompt</sshPasswordSource>
     </global>
     <environment name="test">
         <target name="backend">
