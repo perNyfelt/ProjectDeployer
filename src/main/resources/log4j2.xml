@@ -6,10 +6,10 @@
         </Console>
     </Appenders>
     <Loggers>
-        <Logger name="org.apache.sshd" level="info" additivity="false">
+        <Logger name="org.apache.sshd" level="ERROR" additivity="false">
             <AppenderRef ref="Console"/>
         </Logger>
-        <Root level="debug">
+        <Root level="info">
             <AppenderRef ref="Console"/>
         </Root>
     </Loggers>

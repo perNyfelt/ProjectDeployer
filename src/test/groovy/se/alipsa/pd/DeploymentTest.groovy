@@ -55,4 +55,19 @@ class DeploymentTest {
         def actualFile = new File(targetDir, "test.txt")
         assertTrue(actualFile.exists(), "${actualFile} does not exist, copy failed!")
     }
+
+    @Test
+    void testCreateUser() {
+        def usrName = "pdTest9"
+        def usrGroup = "users"
+        def d = new Deployment(user, "s3crEtP255", "localhost:${sshd.getPort()}")
+        var result = d.removeUser(usrName)
+        LOG.info("Delete existing user result: ${result}")
+        d.createUser(usrName, usrGroup)
+        //result = d.ssh("id ${usrName}")
+        result = d.ssh("if id per > /dev/null 2>&1; then echo yes; else echo no; fi")
+        assertEquals('yes', result.trim())
+        d.removeUser(usrName)
+    }
+
 }

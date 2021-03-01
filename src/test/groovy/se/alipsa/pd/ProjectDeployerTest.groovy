@@ -40,6 +40,7 @@ class ProjectDeployerTest {
         //import se.alipsa.pd.*
 
         String serverUser = "glow"
+        String serverUserGroup = "users"
         String alipsaNexus ="http://localhost:8080/nexus"
         String backendServiceName = "glow-backend.service"
         String javaVersion="11.0.10"
@@ -49,7 +50,7 @@ class ProjectDeployerTest {
         File glowFrontEndZip
 
         def pd = ProjectDeployer.create(new File(getClass().getResource("/vars.xml").toURI()).getAbsolutePath())
-        pd.addSetupActions {
+        pd.createSetupActions {
             glowBackendJar = pd.fetchJarFromRepository(alipsaNexus, "se.alipsa:glow-backend:1.2")
             glowFrontEndZip = pd.fetchJarFromRepository(alipsaNexus, "se.alipsa:glow-frontend:1.2")
         }
@@ -57,7 +58,7 @@ class ProjectDeployerTest {
         // d is an instance of Deployment (there is one Deployment for each host)
         pd.createActions "backend", { d ->
             {
-                d.createServerUser(serverUser)
+                d.createServerUser(serverUser, serverUserGroup)
                 d.stopService(backendServiceName)
                 String javaHome = d.installJava(javaVersion, baseTargetDir)
                 d.copy( fromFile: glowBackendJar,

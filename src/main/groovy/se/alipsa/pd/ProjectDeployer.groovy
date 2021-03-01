@@ -10,7 +10,7 @@ import javax.xml.bind.JAXBContext
 class ProjectDeployer {
 
     DeploymentConfig config
-    List<Closure> setupActions = new ArrayList<>()
+    Closure setupActions
     LinkedHashMap<String, Closure> actionMap = new LinkedHashMap<>()
 
     static ProjectDeployer create(String configFile){
@@ -25,12 +25,12 @@ class ProjectDeployer {
         this.config = config
     }
 
-    def addSetupActions(Closure actions) {
-        setupActions.add(actions)
+    def createSetupActions(Closure actions) {
+        setupActions = actions
     }
 
     def createActions(String targetName, Closure actions) {
-        actionMap.put(targetName, actions);
+        actionMap.put(targetName, actions)
     }
 
 

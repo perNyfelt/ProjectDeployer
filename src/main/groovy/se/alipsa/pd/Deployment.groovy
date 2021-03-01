@@ -5,11 +5,6 @@ package se.alipsa.pd
 
 import se.alipsa.pd.util.IOUtil
 
-import java.nio.channels.Channels
-import java.nio.channels.FileChannel
-import java.nio.channels.ReadableByteChannel
-import java.nio.file.Files
-
 class Deployment {
 
     String sshUser = null
@@ -24,8 +19,27 @@ class Deployment {
         ssh = new Ssh(targetHost, sshUser, sshPassword)
     }
 
-    void createUser(String userName) {
+    String createUser(String userName, String group) {
+        return ssh.eval(
+                """
+                if id ${userName} > /dev/null 2>&1; then \n
+                    echo "user ${userName} already exists" \\n
+                else
+                    sudo useradd -g ${group} ${userName}\\n                  
+                fi
+                """.stripIndent()
+        )
+    }
 
+    String removeUser(String userName) {
+        return ssh.eval("""
+                if id ${userName} > /dev/null 2>&1; then \n
+                    sudo userdel ${userName}\n
+                else  
+                    echo "user ${userName} does not exists" \n
+                fi
+                """.stripIndent()
+        )
     }
 
     void createService(String serviceName) {
@@ -78,6 +92,10 @@ class Deployment {
      */
     void copy(String from, String to) {
         ssh.upload(from, to);
+    }
+
+    String ssh(String cmd) {
+        return ssh.eval(cmd)
     }
 
     void chown(String file, String userName) {
