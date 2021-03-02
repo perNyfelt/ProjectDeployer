@@ -46,12 +46,20 @@ class Deployment {
 
     }
 
-    void stopService(String serviceName) {
-
+    String stopService(String serviceName, type="systemd") {
+        if ("systemd" != type) {
+            throw new InputException("Only systemd services are currently supported")
+        }
+        // TODO: what should we do if the service does not exist?
+        return ssh.eval("sudo systemctl stop ${serviceName}")
     }
 
-    void startService(String serviceName) {
-
+    String startService(String serviceName, type="systemd") {
+        if ("systemd" != type) {
+            throw new InputException("Only systemd services are currently supported")
+        }
+        // TODO: what should we do if the service does not exist?
+        return ssh.eval("sudo systemctl start ${serviceName}")
     }
 
     def mkdir(String path) {
@@ -91,7 +99,7 @@ class Deployment {
      * @param to the target path on the server to put the file on
      */
     void copy(String from, String to) {
-        ssh.upload(from, to);
+        ssh.upload(from, to)
     }
 
     String ssh(String cmd) {
@@ -107,6 +115,6 @@ class Deployment {
     }
 
     String restCall(URL url, String method) {
-        return "";
+        return ""
     }
 }
