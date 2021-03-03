@@ -42,8 +42,8 @@ class Deployment {
         )
     }
 
-    void createService(String serviceName) {
-
+    void createService(String serviceName, String exec, String runAs) {
+        throw new RuntimeException("createService: Not yet implemented")
     }
 
     String stopService(String serviceName, type="systemd") {
@@ -102,6 +102,10 @@ class Deployment {
         ssh.upload(from, to)
     }
 
+    void copy(File from, String to, String owner, String permissions ) {
+        throw new RuntimeException("copy: Not yet implemented")
+    }
+
     String ssh(String cmd) {
         return ssh.eval(cmd)
     }
@@ -117,4 +121,25 @@ class Deployment {
     String restCall(URL url, String method) {
         return ""
     }
+
+    /**
+     *
+     * @param url the url where the jdk can be downloaded from
+     * @param targetDir the base dir to extract the tar.gz file to
+     * @return the JAVA_HOME where the jdk was unpacked to
+     */
+    String installJava(String url, String targetDir) {
+        URL u = new URL(url)
+        String filePath = u.getFile()
+        String fileName = filePath.substring(filePath.lastIndexOf('/')+1)
+        copy(url, targetDir)
+        targetDir = targetDir.endsWith("/") ? targetDir.substring(0, targetDir.length()-1) : targetDir
+        String targetFilePath = "${targetDir}/${fileName}"
+        ssh.eval("sudo tar -zxf ${targetFilePath} -C ${targetDir}")
+        String extractDir = ssh.eval("tar --exclude=\"*/*\" -ztf ${targetFilePath}")
+        return "${targetDir}/${extractDir}"
+    }
+
+
+
 }

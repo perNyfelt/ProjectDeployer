@@ -43,7 +43,7 @@ class ProjectDeployerTest {
         String serverUserGroup = "users"
         String alipsaNexus ="http://localhost:8080/nexus"
         String backendServiceName = "glow-backend.service"
-        String javaVersion="11.0.10"
+        String jdkUrl="https://download.bell-sw.com/java/11.0.10+9/bellsoft-jdk11.0.10+9-linux-amd64.tar.gz"
         String baseTargetDir="/usr/local/glow"
 
         File glowBackendJar
@@ -56,19 +56,19 @@ class ProjectDeployerTest {
         }
 
         // d is an instance of Deployment (there is one Deployment for each host)
-        pd.createActions "backend", { d ->
+        pd.createActions "backend", { Deployment d ->
             {
-                d.createServerUser(serverUser, serverUserGroup)
+                d.createUser(serverUser, serverUserGroup)
                 d.stopService(backendServiceName)
-                String javaHome = d.installJava(javaVersion, baseTargetDir)
-                d.copy( fromFile: glowBackendJar,
-                        toFile: "${baseTargetDir}/backend/${glowBackendJar.getName()}",
-                        owner: serverUser,
-                        permissions: "g=rwx,u=rwx,o=r")
+                String javaHome = d.installJava(jdkUrl, baseTargetDir)
+                d.copy(glowBackendJar,
+                        "${baseTargetDir}/backend/${glowBackendJar.getName()}",
+                        serverUser,
+                        "g=rwx,u=rwx,o=r")
                 d.createService(
-                        name: backendServiceName,
-                        exec: "${javaHome}/bin/java -jar ${glowBackendJar.getName()}",
-                        runas: serverUser)
+                        backendServiceName,
+                        "${javaHome}/bin/java -jar ${glowBackendJar.getName()}",
+                        serverUser)
                 d.startService(backendServiceName)
             }
         }
