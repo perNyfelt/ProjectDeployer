@@ -61,10 +61,18 @@ class ProjectDeployerTest {
                 d.createUser(serverUser, serverUserGroup)
                 d.stopService(backendServiceName)
                 String javaHome = d.installJava(jdkUrl, baseTargetDir)
+                d.copy(from: glowBackendJar,
+                        to: "${baseTargetDir}/backend/${glowBackendJar.getName()}",
+                        owner: serverUser,
+                        permissions: "g=rwx,u=rwx,o=r"
+                )
+                /*
                 d.copy(glowBackendJar,
                         "${baseTargetDir}/backend/${glowBackendJar.getName()}",
                         serverUser,
-                        "g=rwx,u=rwx,o=r")
+                        "g=rwx,u=rwx,o=r"
+                        )
+                 */
                 d.createService(
                         backendServiceName,
                         "${javaHome}/bin/java -jar ${glowBackendJar.getName()}",

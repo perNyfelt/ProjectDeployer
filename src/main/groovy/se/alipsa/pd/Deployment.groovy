@@ -43,7 +43,20 @@ class Deployment {
     }
 
     void createService(String serviceName, String exec, String runAs) {
-        throw new RuntimeException("createService: Not yet implemented")
+        def serviceContent = """[Unit]
+        Description=${serviceName}
+        After=syslog.target
+
+        [Service]
+        User=${runAs}
+        ExecStart=${exec}
+        SuccessExitStatus=143
+
+        [Install]
+        WantedBy=multi-user.target
+        """
+        def serviceFileName = serviceName.endsWith(".service") ? serviceName : "${serviceName}.service"
+        ssh.eval("sudo echo ${serviceContent} > /etc/systemd/system/${serviceFileName} && sudo systemctl enable ${serviceFileName}")
     }
 
     String stopService(String serviceName, type="systemd") {
@@ -102,8 +115,19 @@ class Deployment {
         ssh.upload(from, to)
     }
 
+    void copy(Map params) {
+        copy(
+                (File)params.from,
+                (String)params.to,
+                (String)params.owner,
+                (String)params.permissions
+        )
+    }
+
     void copy(File from, String to, String owner, String permissions ) {
-        throw new RuntimeException("copy: Not yet implemented")
+        copy(from.getAbsolutePath(), to)
+        chown(to, owner)
+        chmod(to, permissions)
     }
 
     String ssh(String cmd) {
@@ -111,11 +135,11 @@ class Deployment {
     }
 
     void chown(String file, String userName) {
-
+        ssh.eval("sudo chown ${userName} ${file}")
     }
 
     void chmod(String file, String mode) {
-
+        ssh.eval("sudo chmod ${mode} file")
     }
 
     String restCall(URL url, String method) {
