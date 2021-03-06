@@ -8,22 +8,29 @@
 plugins {
     // Apply the groovy plugin to add support for Groovy
     id 'groovy'
-
     // Apply the java-library plugin for API and implementation separation.
     id 'java-library'
+    id 'signing'
+    id 'maven-publish'
 }
 
-version = '0.1.0'
+version = '0.1.0-SNAPSHOT'
 group = 'se.alipsa'
 
+java {
+    //withJavadocJar()
+    withSourcesJar()
+}
+
 repositories {
+    mavenLocal()
     //jcenter()
     mavenCentral()
 }
 
 dependencies {
     // Use the latest Groovy version for building this library
-    implementation 'org.codehaus.groovy:groovy-all:3.0.7'
+    compile 'org.codehaus.groovy:groovy-all:3.0.7' // Neither implementation or api works
 
     implementation group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.14.0'
     implementation group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: '2.14.0'
@@ -48,7 +55,81 @@ test {
     }
 }
 
+
 groovydoc {
     use = true
     groovyClasspath = configurations.compile // http://issues.gradle.org/browse/GRADLE-1391
+}
+
+task groovydocJar(type: Jar, dependsOn: groovydoc ) {
+    classifier 'javadoc'
+    from groovydoc.destinationDir
+}
+
+ext.admin = hasProperty('ossrhUsername')
+
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+
+            artifacts {
+                archives sourcesJar
+                archives groovydocJar
+            }
+
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionOf('runtimeClasspath')
+                }
+                usage('java-runtime') {
+                    fromResolutionResult()
+                }
+            }
+
+            pom {
+                name = "${project.name}"
+
+                description = "Project deployment for developers"
+                url = "https://github.com/perNyfelt/ProjectDeployer"
+
+                licenses {
+                    license {
+                        name = 'MIT License'
+                        url = 'https://raw.githubusercontent.com/perNyfelt/ProjectDeployer/main/LICENSE'
+                    }
+                }
+
+                scm {
+                    connection = 'https://github.com/perNyfelt/ProjectDeployer.git'
+                    developerConnection = 'git@github.com:perNyfelt/ProjectDeployer.git'
+                    url = 'https://github.com/perNyfelt/ProjectDeployer/tree/main'
+                }
+
+                developers {
+                    developer {
+                        id = 'pernyf'
+                        name = 'Per Nyfelt'
+                        email = 'per@alipsa.se'
+                    }
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            name = "ossrh"
+            credentials(PasswordCredentials)
+            def releasesRepoUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+            def snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
+            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+        }
+    }
+}
+
+signing {
+    required { admin }
+    sign publishing.publications.maven
 }

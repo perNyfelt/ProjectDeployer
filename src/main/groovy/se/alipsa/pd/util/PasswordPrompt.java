@@ -42,6 +42,7 @@ public class PasswordPrompt {
   /**
    *@param prompt The prompt to display to the user
    *@return The password as entered by the user
+   * @throws IOException if something IO related goes wrong
    */
   public static String readPassword (String prompt) throws IOException {
     EraserThread et = new EraserThread(prompt);
