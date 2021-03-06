@@ -74,9 +74,8 @@ publishing {
         maven(MavenPublication) {
             from components.java
 
-            artifacts {
-                archives sourcesJar
-                archives groovydocJar
+            artifact(groovydocJar) {
+                classifier = 'javadoc'
             }
 
             versionMapping {
