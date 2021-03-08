@@ -1,62 +1,61 @@
 package se.alipsa.pd.util;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 
 public class PasswordPrompt {
 
-  static class EraserThread implements Runnable {
-    private boolean stop;
+  public static void main(String[] args) throws IOException {
+    String pwd = readPassword("Enter password: ");
+    System.out.println("The password entered was " + pwd);
+  }
 
-    /**
-     *@param prompt The prompt displayed to the user
-     */
-    public EraserThread(String prompt) {
-      System.out.print(prompt);
+
+  public static String readPassword(String prompt) {
+    java.io.Console console = System.console();
+    if (console == null) {
+      System.err.println("Failed to retrieve console, trying System.in");
+      return getPassword(prompt);
+    }
+    return String.valueOf(console.readPassword(prompt));
+  }
+
+  private static String getPassword(String prompt) {
+
+    String password = "";
+    ConsoleEraser consoleEraser = new ConsoleEraser();
+    System.out.print(prompt);
+    BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+    consoleEraser.start();
+    try {
+      password = in.readLine();
+    }
+    catch (IOException e){
+      System.out.println("Error trying to read your password!");
+      System.exit(1);
     }
 
-    /**
-     * Begin masking...display asterisks (*)
-     */
-    public void run () {
-      stop = true;
-      while (stop) {
-        System.out.print("\010*");
+    consoleEraser.halt();
+    System.out.print("\b");
+
+    return password;
+  }
+
+
+  private static class ConsoleEraser extends Thread {
+    private boolean running = true;
+    public void run() {
+      while (running) {
+        System.out.print("\b ");
         try {
           Thread.currentThread().sleep(1);
-        } catch(InterruptedException ie) {
-          ie.printStackTrace();
+        }
+        catch(InterruptedException e) {
+          break;
         }
       }
     }
-
-    /**
-     * Instruct the thread to stop masking
-     */
-    public void stopMasking() {
-      this.stop = false;
+    public synchronized void halt() {
+      running = false;
     }
-  }
-
-  /**
-   *@param prompt The prompt to display to the user
-   *@return The password as entered by the user
-   * @throws IOException if something IO related goes wrong
-   */
-  public static String readPassword (String prompt) throws IOException {
-    EraserThread et = new EraserThread(prompt);
-    Thread mask = new Thread(et);
-    mask.start();
-
-    BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-    String password = "";
-
-    password = in.readLine();
-
-    // stop masking
-    et.stopMasking();
-    // return the password entered by the user
-    return password;
   }
 }

@@ -10,6 +10,13 @@ public class Target {
   private String name;
   private List<String> hosts = new ArrayList<>();
 
+  public Target() {
+  }
+
+  public Target(String name) {
+    this.name = name;
+  }
+
   public String getName() {
     return name;
   }

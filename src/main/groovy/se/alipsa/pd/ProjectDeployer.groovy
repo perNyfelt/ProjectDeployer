@@ -6,6 +6,7 @@ import se.alipsa.pd.util.IOUtil
 import se.alipsa.pd.util.PasswordPrompt
 
 import javax.xml.bind.JAXBContext
+import javax.xml.bind.Marshaller
 
 class ProjectDeployer {
 
@@ -77,9 +78,22 @@ class ProjectDeployer {
     static void handleSshPassword(DeploymentConfig deploymentConfig) {
         if (deploymentConfig.global.sshPasswordSource == PasswordSource.prompt) {
             deploymentConfig.global.sshPassword = PasswordPrompt
-                    .readPassword("Enter ssh password for ${deploymentConfig.global.sshUser}")
+                    .readPassword("Enter ssh password for ${deploymentConfig.global.sshUser}: ")
         } else {
             throw new IllegalArgumentException("source ${deploymentConfig.global.sshPasswordSource} is not supported")
         }
+    }
+
+    void handleSshPassword() {
+        handleSshPassword(config)
+    }
+
+    String configAsXml() {
+        JAXBContext context = JAXBContext.newInstance(DeploymentConfig.class)
+        Marshaller mar= context.createMarshaller()
+        mar.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE)
+        StringWriter sw = new StringWriter()
+        mar.marshal(config, sw)
+        return sw.toString()
     }
 }

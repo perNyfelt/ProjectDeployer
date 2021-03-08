@@ -10,6 +10,13 @@ public class Environment {
   private String name;
   private List<Target> targets = new ArrayList<>();
 
+  public Environment() {
+  }
+
+  public Environment(String name) {
+    this.name = name;
+  }
+
   public String getName() {
     return name;
   }
@@ -34,5 +41,11 @@ public class Environment {
 
   public void addTarget(Target prodTarget) {
     targets.add(prodTarget);
+  }
+
+  public Target createAndAddTarget(String name) {
+    Target target = new Target(name);
+    addTarget(target);
+    return target;
   }
 }
